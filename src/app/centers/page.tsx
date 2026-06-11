@@ -2,6 +2,8 @@ import { PageHeader } from "@/components/page-header";
 import { createCenter, getCenterSummaries } from "@/lib/data";
 import { revalidatePath } from "next/cache";
 
+export const dynamic = 'force-dynamic';
+
 async function createCenterAction(formData: FormData) {
   "use server";
 

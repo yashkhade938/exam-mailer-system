@@ -7,6 +7,8 @@ import {
   getSchedulePreview
 } from "@/lib/data";
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
   const [dashboardSummary, dispatchLogs, projects, scheduleSections] = await Promise.all([
     getDashboardSummary(),

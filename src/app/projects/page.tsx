@@ -9,6 +9,8 @@ import {
 import { ProjectStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
+export const dynamic = 'force-dynamic';
+
 async function createProjectAction(formData: FormData) {
   "use server";
 
