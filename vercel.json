@@ -2,13 +2,5 @@
   "buildCommand": "prisma generate && next build",
   "devCommand": "next dev",
   "installCommand": "npm ci",
-  "framework": "nextjs",
-  "env": {
-    "DATABASE_URL": {
-      "required": true
-    },
-    "DATABASE_URL_NON_POOLING": {
-      "required": false
-    }
-  }
+  "framework": "nextjs"
 }
