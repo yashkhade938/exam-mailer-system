@@ -8,12 +8,12 @@ export function PageHeader({
   actions?: React.ReactNode;
 }) {
   return (
-    <div className="page-header">
+    <div className="page-head">
       <div>
-        <h1>{title}</h1>
+        <h2>{title}</h2>
         <p>{description}</p>
       </div>
-      {actions && <div className="actions">{actions}</div>}
+      {actions && <div className="button-row">{actions}</div>}
     </div>
   );
 }
