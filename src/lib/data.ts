@@ -1,4 +1,3 @@
-import { ProjectStatus } from "@prisma/client";
 import type {
   Center as CenterSummary,
   DashboardSummary,
@@ -47,14 +46,14 @@ async function seedDefaultData() {
       data: [
         {
           name: "Forest Recruitment 2026",
-          status: ProjectStatus.ACTIVE,
+          status: "ACTIVE",
           emailSubject: "Center-wise Schedule - Forest Recruitment 2026",
           senderName: "WeShine Operations",
           headerSubtitle: "Recruitment schedule dispatch and center communication"
         },
         {
           name: "State Technical Exam",
-          status: ProjectStatus.DRAFT,
+          status: "DRAFT",
           emailSubject: "Schedule Dispatch - State Technical Exam",
           senderName: "Exam Control Team",
           headerSubtitle: "Technical exam planning workspace"
@@ -238,7 +237,7 @@ export async function getDispatchLogPreview(): Promise<DispatchLog[]> {
 
 export async function createProject(input: {
   name: string;
-  status: ProjectStatus;
+  status: string;
   emailSubject: string;
   senderName: string;
 }) {
