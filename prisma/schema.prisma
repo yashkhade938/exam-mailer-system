@@ -1,0 +1,181 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  PROJECT_ADMIN
+  OPERATOR
+  VIEWER
+}
+
+enum ProjectStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
+}
+
+enum SectionType {
+  PRE_SCHEDULE
+  EXAM_SECTION
+  OVERALL_SUMMARY
+  CUSTOM
+}
+
+enum DispatchStatus {
+  PENDING
+  SENT
+  FAILED
+  CANCELLED
+}
+
+model User {
+  id           String      @id @default(cuid())
+  name         String
+  email        String      @unique
+  passwordHash String?
+  role         UserRole    @default(OPERATOR)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  jobs         DispatchJob[]
+}
+
+model Project {
+  id              String            @id @default(cuid())
+  name            String
+  status          ProjectStatus     @default(DRAFT)
+  emailSubject    String
+  senderName      String
+  headerSubtitle  String?
+  noteText        String?
+  footerText      String?
+  primaryColor    String            @default("#1e3a8a")
+  backgroundColor String            @default("#eef2f7")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  centers         ProjectCenter[]
+  sections        ScheduleSection[]
+  templates       EmailTemplate[]
+  jobs            DispatchJob[]
+}
+
+model Center {
+  id          String          @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  contactName String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  projects    ProjectCenter[]
+  logs        DispatchLog[]
+  scheduleCells ScheduleCell[]
+}
+
+model ProjectCenter {
+  id        String   @id @default(cuid())
+  projectId String
+  centerId  String
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  center    Center   @relation(fields: [centerId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, centerId])
+}
+
+model ScheduleSection {
+  id          String        @id @default(cuid())
+  projectId   String
+  title       String
+  sectionType SectionType   @default(CUSTOM)
+  dateLabel   String?
+  sortOrder   Int
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  project     Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  rows        ScheduleRow[]
+}
+
+model ScheduleRow {
+  id          String         @id @default(cuid())
+  sectionId   String
+  labelLeft   String?
+  labelRight  String?
+  isTotalRow  Boolean        @default(false)
+  sortOrder   Int
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  section     ScheduleSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  cells       ScheduleCell[]
+}
+
+model ScheduleCell {
+  id          String      @id @default(cuid())
+  rowId        String
+  centerId     String?
+  value        String
+  bgColor      String?
+  fgColor      String?
+  fontWeight   String?
+  hAlign       String?
+  vAlign       String?
+  fontSize     Int?
+  rowSpan      Int         @default(1)
+  colSpan      Int         @default(1)
+  row          ScheduleRow @relation(fields: [rowId], references: [id], onDelete: Cascade)
+  center       Center?     @relation(fields: [centerId], references: [id], onDelete: SetNull)
+}
+
+model EmailTemplate {
+  id          String   @id @default(cuid())
+  projectId   String
+  name        String
+  subject     String
+  htmlHeader  String?
+  htmlFooter  String?
+  noteText    String?
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model DispatchJob {
+  id          String         @id @default(cuid())
+  projectId    String
+  createdById  String?
+  name         String
+  subject      String
+  status       DispatchStatus @default(PENDING)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdBy    User?         @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  logs         DispatchLog[]
+}
+
+model DispatchLog {
+  id           String         @id @default(cuid())
+  jobId         String
+  centerId      String
+  recipient     String
+  status        DispatchStatus
+  sentAt        DateTime?
+  errorMessage  String?
+  createdAt     DateTime       @default(now())
+  job           DispatchJob    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  center        Center         @relation(fields: [centerId], references: [id], onDelete: Cascade)
+}
+
+model SystemSetting {
+  id         String   @id @default(cuid())
+  key        String   @unique
+  value      String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
